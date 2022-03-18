@@ -4,13 +4,13 @@
   <!--button class="autoFullScreen" onclick="openFullscreen(this)"></button-->
 
   <!-- 컨트롤러 버튼 클릭 시 활성화 되어있는 위치로 슬라이드 자동 이동 -->
-  <h1 class="slidePositionNum allNumber">{{ pageLength() - 1 }}</h1>
+  <h1 class="slidePositionNum allNumber">{{ pageLength - 1 }}</h1>
   <h1 class="slidePositionNum pageNumber">{{ currentPageIndex }}</h1>
 
   <div id="header_container">
     <img
       id="exit"
-      src="@/assets/exit.png"
+      src="https://i.imgur.com/ddE0rGL.png"
       draggable="false"
       v-on:click="onExit"
     />
@@ -19,21 +19,25 @@
       <img
         id="menu"
         v-on:click="onMenu"
-        src="@/assets/menu_on.png"
+        src="https://i.imgur.com/MOhi63C.png"
         draggable="false"
         v-if="showMenu"
       />
       <img
         id="menu"
         v-on:click="onMenu"
-        src="@/assets/menu.png"
+        src="https://i.imgur.com/E48LvNC.png"
         draggable="false"
         v-else
       />
     </div>
     <div class="toggleBox">
       <div class="toggleWrap" v-on:click="onToggle">
-        <img id="toggle" src="@/assets/toggle.png" draggable="false" />
+        <img
+          id="toggle"
+          src="https://i.imgur.com/xnyI1ct.png"
+          draggable="false"
+        />
       </div>
     </div>
   </div>
@@ -43,7 +47,7 @@
 
   <!-- 엑티비티 유무 확인 아이콘 -->
   <div id="interaction">
-    <img src="@/assets/is_activity.png" alt="" />
+    <img src="../assets/is_activity.png" alt="" />
   </div>
 
   <div id="thumbnail_container">
@@ -77,7 +81,7 @@
             <div class="isActive">
               <img
                 class="thumbnail_has_activity"
-                src="@/assets/has_activity.png"
+                src="../assets/has_activity.png"
                 v-if="item.hasInteraction"
               />
               <div>
@@ -100,159 +104,135 @@
       </li-->
       <li id="mymenu" v-if="hasMyMenu" v-on:click="onMyMenu">마이메뉴</li>
     </ul>
-    <img id="bubble" src="@/assets/bubble.png" alt="" />
+    <img id="bubble" src="https://i.imgur.com/LtkfdRu.png" alt="" />
   </div>
 </template>
 
-<script lang="ts">
-import Timer from '@/util/Timer';
-import { ExitCode } from '@/App.vue';
-import { Options, Vue } from 'vue-class-component';
-import { ControllerData, UiState, Page } from '@/store/ControllerDataModule';
+<script setup>
+import { ref } from 'vue';
 
-@Options({
-  emits: ['pause', 'resume', 'exit', 'audio', 'go'],
-})
-export default class Guider extends Vue {
-  private timer: Timer = null;
+defineProps({
+  msg: String,
+});
 
-  get bookName(): string {
-    return ControllerData.bookName;
-  }
+const bookName = '토끼와 자라의 하루';
+const showMenu = true;
+const hasVOD = false;
+const hasMyMenu = true;
+const currentPageIndex = 0;
+const totalPageCount = 0;
+const pages = [];
+const pageLength = 0;
+let isShowHder = false;
+// document.querySelectorAll('.repeatCon') .length
 
-  get showMenu(): boolean {
-    return ControllerData.uiState == UiState.pausedAndMenu;
-  }
+// public mounted() {
+//   console.log("Guider::mounted");
+//   var autoBtn01:HTMLElement = document.querySelector('.autoBtn01');
+//   var autoBtn02:HTMLElement = document.querySelector('.autoBtn02');
+//   autoBtn01.click();
+//   autoBtn02.click();
+//   this.timer = new Timer(5000, this.onTimeout.bind(this));
+// }
 
-  get hasVOD(): boolean {
-    return ControllerData.hasVOD;
-  }
+// public resetTimer() {
+//   if (this.timer) {
+//     if (ControllerData.uiState == UiState.paused || ControllerData.uiState == UiState.pausedAndMenu) {
+//       this.timer.reset();
+//     }
+//   }
+// }
 
-  get hasMyMenu(): boolean {
-    return ControllerData.hasMyMenu;
-  }
+const showGuider = () => {
+  document.getElementById('header_container').className = 'show';
+  document.getElementById('thumbnail_container').className = 'show';
+  document.getElementById('toggle').className = 'active';
+};
+// function showGuider() {
+//   document.getElementById("header_container").className = "show";
+//   document.getElementById("thumbnail_container").className = "show";
+//   document.getElementById("toggle").className = "active";
+// }
 
-  get currentPageIndex(): number {
-    return ControllerData.currentPageIndex;
-  }
+function hideGuider() {
+  document.getElementById('header_container').className = '';
+  document.getElementById('thumbnail_container').className = '';
+  document.getElementById('toggle').className = '';
+}
 
-  get totalPageCount(): number {
-    return ControllerData.totalPageCount;
-  }
+function onTimeout() {
+  ControllerData.setUiState(UiState.playing);
+  this.hideGuider();
+  this.$emit('resume');
+}
 
-  get pages(): Page[] {
-    return ControllerData.pages;
-  }
-
-  public pageLength(): number {
-    var repeatCon = document.querySelectorAll('.repeatCon');
-    return repeatCon.length;
-  }
-
-  public mounted() {
-    console.log('Guider::mounted');
-    var autoBtn01: HTMLElement = document.querySelector('.autoBtn01');
-    var autoBtn02: HTMLElement = document.querySelector('.autoBtn02');
-    autoBtn01.click();
-    autoBtn02.click();
-    this.timer = new Timer(5000, this.onTimeout.bind(this));
-  }
-
-  public resetTimer() {
-    if (this.timer) {
-      if (
-        ControllerData.uiState == UiState.paused ||
-        ControllerData.uiState == UiState.pausedAndMenu
-      ) {
-        this.timer.reset();
-      }
-    }
-  }
-
-  private showGuider() {
-    document.getElementById('header_container').className = 'show';
-    document.getElementById('thumbnail_container').className = 'show';
-    document.getElementById('toggle').className = 'active';
-  }
-
-  private hideGuider() {
-    document.getElementById('header_container').className = '';
-    document.getElementById('thumbnail_container').className = '';
-    document.getElementById('toggle').className = '';
-  }
-
-  private onTimeout() {
-    ControllerData.setUiState(UiState.playing);
-    this.hideGuider();
-    this.$emit('resume');
-  }
-
-  private onToggle() {
-    console.log('onToggle');
-    if (ControllerData.uiState == UiState.playing) {
-      ControllerData.setUiState(UiState.paused);
-      this.showGuider();
-      this.$emit('pause');
-      this.timer.reset();
-    } else {
-      ControllerData.setUiState(UiState.playing);
-      this.hideGuider();
-      this.$emit('resume');
-      this.timer.clear();
-    }
-  }
-
-  private onMenu() {
-    console.log('onMenu');
-    ControllerData.setUiState(UiState.pausedAndMenu);
-    this.timer.reset();
-  }
-
-  private onMenuWrapper() {
-    console.log('onMenuWrapper');
-    ControllerData.setUiState(UiState.paused);
-    this.timer.reset();
-  }
-
-  private onExit() {
-    console.log('onExit');
-    ControllerData.setUiState(UiState.paused);
-    this.$emit('exit', ExitCode.exitButton);
-    this.timer.clear();
-  }
-
-  private onAudio() {
-    console.log('onAudio');
-    ControllerData.setUiState(UiState.paused);
-    this.$emit('audio');
-    this.timer.clear();
-  }
-
-  private onVOD() {
-    console.log('onVOD');
-    ControllerData.setUiState(UiState.paused);
-    this.$emit('exit', ExitCode.viewVOD);
-    this.timer.clear();
-  }
-
-  private onMyMenu() {
-    console.log('onMyMenu');
-    ControllerData.setUiState(UiState.paused);
-    this.$emit('exit', ExitCode.myMenu);
-    this.timer.clear();
-  }
-
-  private onThumbnail(pageIndex: number) {
-    console.log('onThumbnail');
-    this.$emit('go', pageIndex);
-    this.timer.reset();
-  }
-
-  // 슬라이드 중 class show 안사라짐
-  private onSlide() {
-    this.timer.reset();
+function onToggle() {
+  console.log('onToggle');
+  isShowHder = !isShowHder;
+  if (isShowHder) {
+    showGuider();
+    // this.$emit('pause');
+    // this.timer.reset();
+  } else {
+    hideGuider();
+    // this.$emit('resume');
+    // this.timer.clear();
   }
 }
+
+function onMenu() {
+  console.log('onMenu');
+  ControllerData.setUiState(UiState.pausedAndMenu);
+  this.timer.reset();
+}
+
+function onMenuWrapper() {
+  showMenu = false;
+  console.log('onMenuWrapper');
+
+  // ControllerData.setUiState(UiState.paused);
+  // this.timer.reset();
+}
+
+function onExit() {
+  console.log('onExit');
+  ControllerData.setUiState(UiState.paused);
+  this.$emit('exit', ExitCode.exitButton);
+  this.timer.clear();
+}
+
+function onAudio() {
+  console.log('onAudio');
+  ControllerData.setUiState(UiState.paused);
+  this.$emit('audio');
+  this.timer.clear();
+}
+
+function onVOD() {
+  console.log('onVOD');
+  ControllerData.setUiState(UiState.paused);
+  this.$emit('exit', ExitCode.viewVOD);
+  this.timer.clear();
+}
+
+function onMyMenu() {
+  console.log('onMyMenu');
+  ControllerData.setUiState(UiState.paused);
+  this.$emit('exit', ExitCode.myMenu);
+  this.timer.clear();
+}
+
+function onThumbnail(pageIndex) {
+  console.log('onThumbnail');
+  // this.$emit('go', pageIndex);
+  // this.timer.reset();
+}
+
+// 슬라이드 중 class show 안사라짐
+function onSlide() {
+  this.timer.reset();
+}
+const count = ref(0);
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
